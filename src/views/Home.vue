@@ -23,6 +23,7 @@ const newLog = ref('')
 const today = getToday()
 const isAnimating = ref(false)
 const showDeleteBtn = ref(null)
+const goal = ref('')
 
 // 计算属性
 const isCheckedIn = computed(() => {
@@ -109,6 +110,9 @@ const formatTime = (timestamp) => {
 
 // 生命周期
 onMounted(async () => {
+  // 加载目标
+  goal.value = localStorage.getItem('goal') || ''
+
   try {
     // 获取打卡记录
     const checkinRes = await fetch(`${API_BASE}/checkins`)
@@ -137,6 +141,12 @@ onMounted(async () => {
 <template>
   <div class="app">
     <main class="main">
+      <!-- 目标展示 -->
+      <div v-if="goal" class="goal-banner">
+        <span class="goal-label">目标</span>
+        <p class="goal-text">{{ goal }}</p>
+      </div>
+
       <!-- 打卡卡片 -->
       <section class="card checkin-card">
         <div class="checkin-content">
@@ -234,6 +244,29 @@ onMounted(async () => {
   max-width: 640px;
   margin: 0 auto;
   padding: 24px 16px;
+}
+
+/* 目标展示 */
+.goal-banner {
+  background: linear-gradient(135deg, var(--primary) 0%, #6B8FC5 100%);
+  border-radius: 16px;
+  padding: 20px 24px;
+  margin-bottom: 24px;
+  color: white;
+}
+
+.goal-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.9;
+}
+
+.goal-text {
+  font-size: 18px;
+  font-weight: 500;
+  margin-top: 8px;
+  line-height: 1.4;
 }
 
 /* 卡片通用样式 */
