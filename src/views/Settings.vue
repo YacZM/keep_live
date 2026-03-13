@@ -6,6 +6,11 @@ const API_BASE = '/api'
 // 主题设置
 const isDarkMode = ref(false)
 
+// 目标设置
+const goal = ref('')
+const goalInput = ref('')
+const isEditingGoal = ref(false)
+
 // 数据统计
 const stats = ref({
   totalCheckins: 0,
@@ -21,6 +26,10 @@ onMounted(async () => {
     isDarkMode.value = true
     document.documentElement.classList.add('dark')
   }
+
+  // 加载目标
+  goal.value = localStorage.getItem('goal') || ''
+  goalInput.value = goal.value
 
   // 加载统计数据
   try {
@@ -54,6 +63,18 @@ const toggleTheme = () => {
     document.documentElement.classList.remove('dark')
     localStorage.setItem('theme', 'light')
   }
+}
+
+// 保存目标
+const saveGoal = () => {
+  goal.value = goalInput.value.trim()
+  localStorage.setItem('goal', goal.value)
+  isEditingGoal.value = false
+}
+
+const cancelEditGoal = () => {
+  goalInput.value = goal.value
+  isEditingGoal.value = false
 }
 
 // 清空日志确认
@@ -126,6 +147,29 @@ const exportData = async () => {
           <div class="stat-item">
             <span class="stat-value">{{ stats.streak }}</span>
             <span class="stat-label">当前连续天数</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 目标设置 -->
+      <section class="card">
+        <h2 class="card-title">目标设置</h2>
+        <div v-if="!isEditingGoal" class="goal-display">
+          <p class="goal-text">{{ goal || '未设置目标' }}</p>
+          <button class="edit-btn" @click="isEditingGoal = true">
+            {{ goal ? '编辑' : '设置' }}
+          </button>
+        </div>
+        <div v-else class="goal-edit">
+          <input
+            v-model="goalInput"
+            class="goal-input"
+            placeholder="输入你的目标..."
+            @keyup.enter="saveGoal"
+          />
+          <div class="goal-actions">
+            <button class="cancel-btn" @click="cancelEditGoal">取消</button>
+            <button class="save-btn" @click="saveGoal">保存</button>
           </div>
         </div>
       </section>
@@ -223,6 +267,104 @@ const exportData = async () => {
   font-size: 18px;
   color: var(--text-primary);
   margin-bottom: 20px;
+}
+
+/* 目标设置 */
+.goal-display {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.goal-text {
+  font-size: 15px;
+  color: var(--text-primary);
+  flex: 1;
+}
+
+.goal-text:empty::before,
+.goal-text:not(:empty)::before {
+  content: '';
+}
+
+.goal-text:empty::after {
+  content: '未设置目标';
+  color: var(--text-secondary);
+}
+
+.edit-btn {
+  padding: 8px 16px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 14px;
+  color: var(--primary);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.edit-btn:hover {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+.goal-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.goal-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  font-size: 15px;
+  background: var(--bg);
+  color: var(--text-primary);
+  transition: var(--transition);
+}
+
+.goal-input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.goal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.cancel-btn {
+  padding: 8px 16px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 14px;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.cancel-btn:hover {
+  background: var(--border);
+}
+
+.save-btn {
+  padding: 8px 20px;
+  background: var(--primary);
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  color: white;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.save-btn:hover {
+  background: #3d5d8a;
 }
 
 /* 统计卡片 */
